@@ -1,0 +1,645 @@
+module x86authdns {
+
+  namespace "http://secure64.com/";
+  prefix s64auth;
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+
+  import tailf-common {
+    prefix tail;
+  }
+
+  organization "Secure64 Software Corp.";
+
+  contact "joe.gersch@secure64.com";
+
+  description "Module to support S64 x86 DNS Authority configuration.";
+
+  revision 2016-09-01 {
+    reference "http://secure64.com/x86-s64auth/yang/";
+
+    description "Draft prototype initial revision of x86 Authority. Added 
+    full configuration and constraints.";
+  }
+
+  container s64auth-server {
+
+    list server {
+
+      key name;
+
+      leaf name {
+        type string;
+        mandatory true;
+      }
+
+      leaf server-count {
+        type uint8;
+        default 1;
+
+        description "Number of AUTHDNS servers to fork.  Put the number of CPUs to use here.";
+      }
+
+      leaf verbosity {
+        type uint8;
+        default 1;
+
+        description "Logging verbosity. Default 1.";
+      }
+
+      leaf ip-transparent {
+        type string;
+        default "no";
+
+        description "Allow binding to non local addresses. Default no.";
+      }
+      must "(ip-transparent = 'yes' or ip-transparent = 'no')" {
+        error-message "'yes' or 'no' value required for this option.";
+      }
+
+      leaf reuseport {
+        type string;
+        default "yes";
+
+        description "Use the reuseport socket option for performance. Default yes.";
+      }
+
+      must "(reuseport = 'yes' or reuseport = 'no')" {
+        error-message "'yes' or 'no' value required for this option.";
+      }
+
+      leaf do-ip4 {
+        type string;
+        default "yes";
+
+        description "Listen on IPv4 connections. Default yes.";
+      }
+      must "(do-ip4 = 'yes' or do-ip4 = 'no')" {
+        error-message "'yes' or 'no' value required for this option.";
+      }
+
+      leaf do-ip6 {
+        type string;
+        default "yes";
+
+        description "Listen on IPv6 connections. Default yes.";
+      }
+      must "(do-ip6 = 'yes' or do-ip6 = 'no')" {
+        error-message "'yes' or 'no' value required for this option.";
+      }
+
+      leaf port {
+        type uint16;
+        default 53;
+
+        description "Port to answer queries on. default is 53.";
+      }
+
+      leaf zonelistfile {
+        type string {
+          length "1 .. 253";
+        }
+
+        description "The list of dynamically added zones.";
+      }
+
+      leaf logfile {
+        type string;
+
+        description "Log messages to file. Default to stderr and syslog (with
+                     facility LOG_DAEMON).  stderr disappears when daemon goes
+                      to bg.";
+      }
+
+      leaf xfrdfile {
+        type string;
+
+        description "The file where secondary zone refresh and expire timeouts are kept.
+                     If you delete this file, all secondary zones are forced to be 
+                     'refreshing' (as if s64authdns got a notify).  Set to '' to disable.";
+      }
+
+      leaf xfrdir {
+        type string;
+
+        description "The directory where zone transfers are stored, in a subdir of it.";
+      }
+
+      leaf hide-version {
+        type string;
+        default "no";
+
+        description "Don't answer VERSION.BIND and VERSION.SERVER CHAOS class queries.";
+      }
+
+      must "(hide-version = 'yes' or hide-version = 'no')" {
+        error-message "'yes' or 'no' value required for this option.";
+      }
+
+      leaf version {
+        type string;
+
+        description "Version string the server responds with for chaos queries.
+                     default is 'AUTHDNS x.y.z' with the server's version number.";
+      }
+
+      leaf identity {
+        type string;
+
+        description "Identify the server (CH TXT ID.SERVER entry).";
+      }
+
+      leaf nsid {
+        type string;
+
+        description "NSID identity (hex string, or 'ascii_somestring'). Default disabled.";
+      }
+
+      leaf tcp-count {
+        type uint32;
+
+        description "Maximum number of concurrent TCP connections per server.";
+      }
+
+      leaf tcp-query-count {
+        type uint32;
+
+        description "Maximum number of queries served on a single TCP connection.
+                     By default 0, which means no maximum.";
+      }
+
+      leaf tcp-timeout {
+        type uint32;
+
+        description "Override the default (120 seconds) TCP timeout.";
+      }
+
+      leaf ipv4-edns-size {
+        type uint32;
+
+        description "Preferred EDNS buffer size for IPv4.";
+      }
+
+      leaf ipv6-edns-size {
+        type uint32;
+
+        description "Preferred EDNS buffer size for IPv6.";
+      }
+
+      leaf statistics {
+        type uint32;
+
+        description "Statistics are produced every number of seconds. Prints to log.
+                     Default is 0, meaning no statistics are produced.";
+      }
+
+      leaf xfrd-reload-timeout {
+        type uint32;
+
+        description "Number of seconds between reloads triggered by xfrd.";
+      }
+
+      leaf log-time-ascii {
+        type string;
+        default "yes";
+
+        description "Log timestamp in ascii (y-m-d h:m:s.msec), yes is default.";
+      }
+
+      must "(log-time-ascii = 'yes' or log-time-ascii = 'no')" {
+        error-message "'yes' or 'no' value required for this option.";
+      }
+
+      leaf round-robin {
+        type string;
+        default "no";
+
+        description "Round robin rotation of records in the answer.";
+      }
+
+      must "(round-robin = 'yes' or round-robin = 'no')" {
+        error-message "'yes' or 'no' value required for this option.";
+      }
+
+      leaf zonefiles-check {
+        type string;
+
+        description "Check mtime of all zone files on start and sighup.";
+      }
+
+      leaf zonefiles-write {
+        type uint32;
+        default 0;
+
+        description "Write changed zonefiles to disk, every N seconds.
+                     default is 0(disabled) or 3600(if database is '').";
+      }
+
+      leaf rrl-size {
+        type uint32;
+        default 1000000;
+
+        description "Response Rate Limiting, size of the hashtable. Default 1000000.";
+      }
+
+      leaf rrl-ratelimit {
+        type uint32;
+        default 0;
+
+        description "Response Rate Limiting, maximum QPS allowed (from one query source).
+                     If set to 0, ratelimiting is disabled. Also set rrl-whitelist-ratelimit to 0 to disable ratelimit processing.";
+      }
+
+      leaf rrl-slip {
+        type uint32;
+        default 2;
+
+        description "Response Rate Limiting, number of packets to discard before
+                    sending a SLIP response (a truncated one, allowing an honest
+                    resolver to retry with TCP). Default is 2 (one half of the
+                    queries will receive a SLIP response, 0 disables SLIP (all
+                    packets are discarded), 1 means every request will get a
+                    SLIP response.  When the ratelimit is hit the traffic is
+                    divided by the rrl-slip value.";
+      }
+
+      leaf rrl-ipv4-prefix-length {
+        type uint32 {
+          range "1 .. 32";
+        }
+        default 24;
+
+        description "Response Rate Limiting, IPv4 prefix length. Addresses are
+                     grouped by netblock.";
+      }
+
+      leaf rrl-ipv6-prefix-length {
+        type uint32 {
+          range "1 .. 64";
+        }
+        default 64;
+
+        description "Response Rate Limiting, IPv6 prefix length. Addresses are
+                    grouped by netblock.";
+
+      }
+
+      leaf rrl-whitelist-ratelimit {
+        type uint32;
+        default 0;
+
+        description "Response Rate Limiting, maximum QPS allowed (from one query source)
+                    for whitelisted types.";
+      }
+
+      list ip-address {
+        key addr-name;
+
+        leaf addr-name {
+          type string;
+          mandatory true;
+
+          description "Name to identify this IP.";
+        }
+
+        leaf ipv4-address {
+          type inet:ipv4-address;
+          mandatory true;
+
+          description "Valid IPv4 Address.";
+        }
+
+        leaf ipv4-mask {
+          type inet:ipv4-address;
+          mandatory true;
+
+          description "Valid IPv4 Mask.";
+        }
+
+        leaf ipv4-port {
+          type uint16;
+          default 53;
+
+          description "Port to listen to queries for this IP. Defaults to 53.";
+        }
+
+        description "For servers with multiple IP addresses, list them one by
+                     one, or the source address of replies could be wrong
+                     Use ip-transparent to be able to list addresses that turn
+                     on later.";
+      }
+
+      list key {
+        key name;
+
+        leaf name {
+          type string;
+          mandatory true;
+
+          description "The key name is sent to the other party, it must be the same.";
+        }
+
+        leaf algorithm {
+          type string;
+          mandatory true;
+
+          description "Algorithm hmac-md5, or hmac-sha1, or hmac-sha256 (if compiled in)";
+        }
+
+        leaf secret {
+          type string;
+          mandatory true;
+
+          description "Secret material, must be the same as the other party uses.
+                        base64 encoded random number. e.g. from dd if=/dev/random of=/dev/stdout count=1 bs=32 | base64";
+        }
+
+      }
+
+      // PATTERN
+      list pattern {
+        key name;
+        unique "outgoing-interface";
+
+        leaf name {
+          type string;
+          mandatory true;
+
+          description "Name by which the pattern is referred to";
+        }
+
+        leaf zonefile {
+          type string;
+          mandatory true;
+
+          description "The zonefile for the zones that use this pattern.
+                      if relative then from /usr/local/s64/authdnsadmin
+                      the name is processed: %s - zone name (as appears in zone:name).
+                      %1 - first character of zone name, %2 second, %3 third.
+                      %z - topleveldomain label of zone, %y, %x next labels in name.
+                      if label or character does not exist you get a dot '.'.
+                      for example '%s.zone' or 'zones/%1/%2/%3/%s' or 'secondary/%z/%s'";
+        }
+
+        list notify {
+          key ipv4-addr;
+
+          leaf ipv4-addr {
+            type inet:ipv4-address;
+            mandatory true;
+          }
+
+          leaf key-type {
+            type enumeration {
+              enum TSIG;
+              enum NOKEY;
+            }
+
+            default NOKEY;
+          }
+
+          leaf port {
+            type uint16;
+            default 53;
+          }
+
+          description "A master zone needs notify: and provide-xfr: lists.  A slave
+                        may also allow zone transfer (for debug or other secondaries).
+                        notify these slaves when the master zone changes, address TSIG|NOKEY
+                        IP can be ipv4 and ipv6, with @port for a nondefault port number.";
+        }
+
+        list provide-xfr {
+          key ipv4-addr;
+
+          leaf ipv4-addr {
+            type inet:ipv4-address;
+            mandatory true;
+          }
+
+          leaf ipv4-prefix {
+            type uint8 {
+              range "0 .. 32";
+            }
+            mandatory true;
+          }
+
+          leaf key-type {
+            type enumeration {
+              enum TSIG;
+              enum NOKEY;
+              enum BLOCKED;
+            }
+
+            default NOKEY;
+          }
+
+          leaf port {
+            type uint16;
+            default 53;
+          }
+
+          description "A master zone needs notify: and provide-xfr: lists.  A slave
+                        may also allow zone transfer (for debug or other secondaries).
+                        notify these slaves when the master zone changes, address TSIG|NOKEY
+                        IP can be ipv4 and ipv6, with @port for a nondefault port number.allow these IPs and TSIG to transfer zones, addr TSIG|NOKEY|BLOCKED
+                        address range 192.0.2.0/24, 1.2.3.4&255.255.0.0, 3.0.2.20-3.0.2.40";
+        }
+
+        list allow-notify {
+          key ipv4-addr;
+
+          leaf ipv4-addr {
+            type inet:ipv4-address;
+          }
+
+          leaf ipv4-prefix {
+            type uint8 {
+              range "0 .. 32";
+            }
+
+            tail:validate port-addr-pair {
+              tail:dependency "../ipv4-addr";
+            }
+          }
+
+          leaf ipv6-addr {
+            type inet:ipv6-address;
+          }
+
+          leaf ipv6-prefix {
+            type uint8 {
+              range "0 .. 64";
+            }
+
+            tail:validate ipv6-prefix-addr {
+              tail:dependency "../ipv6-addr";
+            }
+          }
+
+          leaf key-type {
+            type enumeration {
+              enum TSIG;
+              enum NOKEY;
+              enum BLOCKED;
+            }
+
+            default NOKEY;
+          }
+
+          leaf port {
+            type uint16;
+            default 53;
+          }
+
+          must "(ipv4-addr != 'empty' or ipv6-addr != 'empty')" {
+            error-message "Either or of ipv4/ipv6 allowed.";
+          }
+
+        }
+
+        list request-xfr {
+          key ipv4-addr;
+
+          leaf ipv4-addr {
+            type inet:ipv4-address;
+            mandatory true;
+          }
+
+          leaf ipv4-prefix {
+            type uint8 {
+              range "0 .. 32";
+            }
+            mandatory true;
+          }
+
+          leaf key {
+            type string;
+          }
+
+          leaf port {
+            type uint16;
+            default 53;
+          }
+        } // END REQUEST-XFR
+
+        leaf allow-axfr-fallback {
+          type string;
+          default "yes";
+
+          description "Attention: You cannot use UDP and AXFR together. AXFR is always over 
+                        TCP. If you use UDP, we higly recommend you to deploy TSIG.
+                        Allow AXFR fallback if the master does not support IXFR. Default
+                        is yes.";
+        }
+        must "(allow-axfr-fallback = 'yes' or allow-axfr-fallback = 'no')" {
+          error-message "'yes' or 'no' value required for this option.";
+        }
+
+        leaf outgoing-interface {
+          type inet:ipv4-address;
+
+          description "Set local interface for sending zone transfer requests.
+                      default is let the OS choose.";
+        }
+
+        leaf notify-retry {
+          type uint32;
+          default 5;
+
+          description "Set the number of retries for notify.";
+        }
+
+        leaf zonestats {
+          type string;
+
+          description "If compiled with --enable-zone-stats, give name of stat block for
+                      this zone (or group of zones).  Output from s64authdns-control stats.";
+        }
+
+        leaf include-pattern {
+          type string;
+
+          description "If you give another pattern name here, at this point the settings
+                      from that pattern are inserted into this one (as if it were a 
+                      macro).  The statement can be given in between other statements,
+                      because the order of access control elements can make a difference
+                      (which master to request from first, which slave to notify first).";
+        }
+
+      } // END PATTERN
+
+      list zone {
+        key name;
+
+        leaf name {
+          type string;
+          mandatory true;
+        }
+
+        leaf file-name {
+          type string;
+          mandatory true;
+        }
+
+        leaf file-url {
+          type string;
+          mandatory true;
+        }
+
+        list request-xfr {
+          key ipv4-addr;
+
+          leaf ipv4-addr {
+            type inet:ipv4-address;
+            mandatory true;
+          }
+
+          leaf ipv4-prefix {
+            type uint8 {
+              range "0 .. 32";
+            }
+            mandatory true;
+          }
+
+          leaf key {
+            type string;
+          }
+
+          leaf port {
+            type uint16;
+            default 53;
+          }
+
+          description "A slave zone needs allow-notify: and request-xfr: lists.
+                      allow-notify: 2001:db8::0/64 my_tsig_key_name
+                      By default, a slave will request a zone transfer with IXFR/TCP.
+                      If you want to make use of IXFR/UDP use: UDP addr tsigkey
+                      for a master that only speaks AXFR (like AUTHDNS) use AXFR addr tsigkey.";
+
+        } // END REQUEST-XFR
+
+        leaf rrl-whitelist {
+          type enumeration {
+            enum nxdomain;
+            enum error;
+            enum referral;
+            enum any;
+            enum rrsig;
+            enum wildcard;
+            enum nodata;
+            enum dnskey;
+            enum positive;
+            enum all;
+          }
+        }
+
+        description "Fixed zone entries.  Here you can config zones that cannot be deleted.
+                    Zones that are dynamically added and deleted are put in the zonelist file.";
+
+      } // END ZONE
+    }
+  }
+}
