@@ -1,0 +1,94 @@
+/*
+ * File: rest-api.yang
+ * Author: Ian Cohee
+ *
+ * This is the top-level YANG file for the Ve-VNFM REST API data model.
+ * So far, there is only one include, ``secure64-common.yang'' which defines
+ * the relevant data types for different REST calls.
+ *
+ * TODO: Things I want to figure out how to model, as I did in RAML:
+ *  1. How to model the GET data manipulation features. These are
+ *    1.1 Sortable   - The ``sort'' parameter can take a list of keys upon which to sort.
+ *    1.2 Filterable - ``filter'' is not a parameter, so filtering is done on ``?key=value1,value2''
+ *    1.3 Limitable  - The ``fields'' parameter takes a list of fields that should be returned.
+ *  2. Zone data allocation
+ *    2.1 Dynamically adding zones
+ *    2.2 Dynamically adding RRset data to an existing zone.
+ *  3. How to add new top-level resources, like ``/api/running''
+ * 
+ * */
+
+module rest-api {
+    namespace "http://secure64.com/api/v1.0";
+    prefix "rest";
+
+    // Imports
+    // There are no used imports in this file. 
+    // The included file has the necessary imports for IETF and YANG datatypes.
+
+    // Includes
+    include secure64-common;   
+ 
+    organization "Secure64 Software Corp.";
+
+    contact
+        "joe.gersch@secure64.com";
+
+    description 
+        "A YANG model of the Ve-VNFM REST API.
+
+          /sys              - On-demand data relating to the VNF (GET, POST, PUT, DELETE)
+          /vnfcs            - On-demand data relating to the VNFc (GET, POST, PUT, DELETE)
+          /vnfcs/{vnfc-id}  - On-demand data relating to the VNFc, as identified by a ``vnfc-id'' 
+                              (GET, POST, PUT, DELETE)
+        
+         This module is the top-level module. See the ``secure64-common.yang'' submodules for details.";
+
+    revision 2016-09-23 {
+        description "Initial version.";
+    }
+
+    container resources {
+        description "Contains endpoints of the Ve-VNFM ReSTful API.";
+        container sys {
+            description
+                "This endpoint is related to creating, retrieving, updating, and destroying on-demand data of the VNF.";
+            leaf sys_id {
+                type sys_id;
+                mandatory true;
+            }
+            leaf ems_address {
+                type ems_address;
+                mandatory true;
+            }
+            leaf netconf_ip {
+                type netconf_ip;
+                mandatory true;
+            }
+            leaf netconf_port {
+                type netconf_port;
+                mandatory true;
+            }
+            leaf-list vnfc_ids {
+                type vnfc_id;
+                min-elements 1;
+            }
+            leaf-list int_connection_points {
+                type connection_point;
+                min-elements 1;
+            }
+            leaf-list ext_connection_points {
+                type connection_point;    
+                min-elements 1;
+            }
+            leaf timeout {
+                type timeout;
+                mandatory true;
+            }
+            leaf status {
+                type status;
+                mandatory true;
+            }
+        }
+    }
+}

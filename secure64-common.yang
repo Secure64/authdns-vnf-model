@@ -1,0 +1,87 @@
+/*
+ * File: secure64-common.yang
+ * Author: Ian Cohee
+ *
+ * This file defines some derived data types that may be reused.
+ */
+
+submodule secure64-common {
+    belongs-to rest-api {
+        prefix rest;
+    }
+
+    import ietf-yang-types {
+        prefix yang;
+    }
+  
+    import ietf-inet-types {
+        prefix inet;
+    }
+
+    // Derived data types follow
+    typedef sys_id {
+        description
+            "The UUID of the system.";  
+        type  yang:uuid;
+    }
+
+    typedef ems_address {
+        description
+            "Address/URL from where the VNF shall download configuration.";
+        type inet:ipv4-address;
+    }
+
+    typedef netconf_ip {
+        description
+            "Local IP address where the VNF should run the NETCONF server.";
+        type inet:ipv4-address;
+    }
+
+    typedef netconf_port {
+        description
+            "Local TCP port where the VNF should run the NETCONF server.";
+        type inet:port-number;
+    }
+
+    typedef timeout {
+        description
+            "Duration in second that the VNFM shall wait for the response. After the expiry of this duration, the VNF shall send the failure response to the VNFM and clear all the configuration data. The VNF shall go back to the state it was before receiving this request i.e. STARTED.";
+        type uint32 {
+            range "1..max";
+        } 
+    }
+    typedef status {
+        description
+            "The 'status' of a server refers to active/standby status. Active VNFs have a status of 'INS' while standby systems are considered Out of Service, or 'OOS'.";
+        type enumeration {
+            enum "INS" {
+                description "In Service";
+            }
+            enum "OOS" {
+                description "Out of Service";
+            }
+        }
+    }
+
+    typedef vnfc_id {
+        description
+            "The UUID of the system component.";
+        type yang:uuid;
+    }
+
+    typedef connection_point {
+        description
+            "An internal or external connection point string.";
+        type enumeration {
+            enum "layer1" {
+                description "Physical layer";
+            }
+            enum "layer2" {
+                description "Data link layer";
+            }
+            enum "layer3" {
+                description "Network layer";
+            }
+        }
+    }
+}
