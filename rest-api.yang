@@ -32,7 +32,7 @@ module rest-api {
     organization "Secure64 Software Corp.";
 
     contact
-        "joe.gersch@secure64.com";
+        "support@secure64.com";
 
     description 
         "A YANG model of the Ve-VNFM REST API.

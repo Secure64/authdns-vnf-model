@@ -28,13 +28,13 @@ submodule secure64-common {
     typedef ems_address {
         description
             "Address/URL from where the VNF shall download configuration.";
-        type inet:ipv4-address;
+        type inet:ip-address;
     }
 
     typedef netconf_ip {
         description
             "Local IP address where the VNF should run the NETCONF server.";
-        type inet:ipv4-address;
+        type inet:ip-address;
     }
 
     typedef netconf_port {
