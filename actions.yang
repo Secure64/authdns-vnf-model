@@ -1,0 +1,91 @@
+/*
+ * File: actions.yang
+ * Author: Ian Cohee
+ *
+ * This file models actions that are available on the 
+ * Secure64 x86 DNS VNF server. At this time, the available 
+ * actions are:
+ *     1. Stop DNS
+ *     2. Start DNS
+ *     3. Re-start DNS
+ * */
+
+module actions {
+    namespace "http://secure64.com/actions";
+    prefix ac;
+    
+    import tailf-common {
+        prefix tailf;
+    }
+
+    organization "Secure64 Software Corp.";
+    contact "support@secure64.com";
+
+    description
+        "This module describes actions that may be requested of the VNF instance. These actions are:
+            
+            start   -    Start the DNS service.
+            stop    -    Stop the DNS service.
+            restart -    Restart the DNS service (not the same as a stop/start)";
+
+    revision 2016-09-30 {
+        description "Initial version.";
+    }
+
+    container actions {
+        tailf:action start {
+            tailf:actionpoint status-point;
+            input {
+            }
+            output {
+                leaf message {
+                    type string;
+                    mandatory true;
+                }
+            }
+        }
+        tailf:action stop {
+            tailf:actionpoint status-point;
+            input {
+                leaf mode {
+                    type enumeration {
+                        enum graceful;
+                        enum forceful;
+                    }
+                    mandatory true;
+                }
+            }
+            output { }
+        }
+        tailf:action restart {
+            tailf:actionpoint status-point;
+            input {
+                leaf mode {
+                    type enumeration {
+                        enum graceful;
+                        enum forceful;
+                    }
+                    mandatory true;
+                }
+            }
+            output {}
+        }
+        tailf:action script {
+            tailf:exec "./service-status.sh" {
+                tailf:args "$(new-state)";
+            }
+            input {
+                leaf new-state {
+                    type string;
+                    mandatory true;
+                }
+            }
+            output { 
+                leaf message {
+                    type string;
+                    mandatory true;
+                }
+            }
+        }
+    }
+}

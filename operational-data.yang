@@ -1,0 +1,92 @@
+/*
+ * File: operational-data.yang
+ * Author: Ian Cohee
+ *
+ * This is a basic PoC operational data model for ``netstat -i''
+ * as it is executed on a CentOS 7 system. The reason I specify, is
+ * because this is a naive implementation and only parses the output of
+ * the netstat command. A smarter peice of code would get that impormation
+ * from some library calls, or something. 
+ * Also note, that the numbers reported by netstat on CentOS vary from
+ * those reported by Ubuntu, etc..
+ * */
+
+module operational-data {
+    namespace "http://secure64.com/api/v1.0/operational";
+    prefix op;
+
+    import ietf-yang-types {
+        prefix yang;
+    }
+
+    import ietf-inet-types {
+        prefix ietf;
+    }
+
+    import tailf-common {
+        prefix tailf;
+    }
+
+    organization "Secure64 Software Corp.";
+    
+    contact "support@secure64.com";
+
+    description
+        "This module defines operational (non-configuration) data that can be retrieved from the system via a call to ``netstat -i''.";
+
+    revision 2016-09-28 {
+        description "Initial version.";
+    }
+
+    container ifaces {
+        config false;
+        tailf:callpoint ifaces;
+        list iface {
+            key "name";
+            max-elements 1024;
+            leaf name {
+                type string;
+            }
+            leaf mtu {
+                type uint32;
+                mandatory true;
+            }
+            leaf rx_ok {
+                type uint64;
+                mandatory true;
+            }
+            leaf rx_error {
+                type uint64;
+                mandatory true;
+            }
+            leaf rx_drop {
+                type uint64;
+                mandatory true;
+            }
+            leaf rx_ovr {
+                type uint64;
+                mandatory true;
+            }
+            leaf tx_ok {
+                type uint64;
+                mandatory true;
+            }
+            leaf tx_error {
+                type uint64;
+                mandatory true;
+            }
+            leaf tx_drop {
+                type uint64;
+                mandatory true;
+            }
+            leaf tx_ovr {
+                type uint64;
+                mandatory true;
+            }
+            leaf flags {
+                type string;
+                mandatory true;
+            }
+        }
+    }
+}
