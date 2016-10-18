@@ -5,9 +5,13 @@
  * This file models actions that are available on the 
  * Secure64 x86 DNS VNF server. At this time, the available 
  * actions are:
- *     1. Stop DNS
- *     2. Start DNS
- *     3. Re-start DNS
+ *
+ *     1. Start DNS
+ *     2. Stop DNS
+ *     3. Reconfig
+ *     4. reload
+ *       4.1 reload <zone name>
+ *     5. Status
  * */
 
 module actions {
@@ -24,9 +28,14 @@ module actions {
     description
         "This module describes actions that may be requested of the VNF instance. These actions are:
             
-            start   -    Start the DNS service.
-            stop    -    Stop the DNS service.
-            restart -    Restart the DNS service (not the same as a stop/start)";
+            stop     -    Stop the DNS service.
+            start    -    Start the DNS service.
+            reconfig -    Reload ``nsd.conf'' and apply changes to TSIG key and configuration patterns,
+                          and apply the changes to add and remove zones that are mentioned in the config.
+                          Other changes are not applied, such as listening ip addres and port.
+            reload   -    Reload zonefiles and reopen logilfe. Without argument reads changed zonefiles.
+                          With argument reads the zonefile for the given zone and loads it.
+            status   -    Display server status.";
 
     revision 2016-09-30 {
         description "Initial version.";
