@@ -35,10 +35,9 @@ module actions {
     container actions {
         tailf:action start {
             tailf:actionpoint status-point;
-            input {
-            }
+            input {}
             output {
-                leaf message {
+                leaf output {
                     type string;
                     mandatory true;
                 }
@@ -46,45 +45,47 @@ module actions {
         }
         tailf:action stop {
             tailf:actionpoint status-point;
-            input {
-                leaf mode {
-                    type enumeration {
-                        enum graceful;
-                        enum forceful;
-                    }
+            input {}
+            output { 
+                leaf output {
+                    type string;
                     mandatory true;
-                }
+                }    
             }
-            output { }
         }
-        tailf:action restart {
+        tailf:action reconfig {
+            tailf:actionpoint status-point;
+            input {}
+            output {
+                leaf output {
+                    type string;
+                    mandatory true;
+                }    
+            }
+        }
+        tailf:action reload {
             tailf:actionpoint status-point;
             input {
-                leaf mode {
-                    type enumeration {
-                        enum graceful;
-                        enum forceful;
-                    }
-                    mandatory true;
-                }
+                leaf zone {
+                    type string;
+                    mandatory false;
+                }    
             }
-            output {}
+            output {
+                leaf output {
+                    type string;
+                    mandatory true;
+                }    
+            }
         }
-        tailf:action script {
-            tailf:exec "./service-status.sh" {
-                tailf:args "$(new-state)";
-            }
-            input {
-                leaf new-state {
-                    type string;
+        tailf:action status {
+            tailf:actionpoint status-point;
+            input {}
+            output {
+                leaf output {
+                    type string; 
                     mandatory true;
-                }
-            }
-            output { 
-                leaf message {
-                    type string;
-                    mandatory true;
-                }
+                }    
             }
         }
     }
